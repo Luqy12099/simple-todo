@@ -1,0 +1,35 @@
+{% extends 'register/base.html'%}
+
+{% block tittle %}
+Update To DO
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-8">
+                <form id="editForm" method="post" action="{% url 'todolist_update' todo_id=todo.id %}">
+                    {% csrf_token %}
+                    <input type="text" name="name" id="editInput" value="{{ todo.name }}" readonly>
+                    <button type="button" id="editButton">Edit</button>
+                    <button type="submit" id="saveButton" style="display: none;">Save</button>
+                </form>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+
+
+<script>
+    document.getElementById('editButton').addEventListener('click', function () {
+        document.getElementById('editInput').readOnly = false;
+        document.getElementById('editInput').focus();
+        document.getElementById('editButton').style.display = 'none';
+        document.getElementById('saveButton').style.display = 'inline-block';
+    });
+</script>
+
+{% endblock %}
