@@ -2,6 +2,23 @@
 <b>Full Changelog</b>
 
 ---
+#### v 0.0.4 -- 2024/01/21
+###### New:
+* API (views)
+    * todolist_app/item_create
+    * todolist_app/item_update
+
+* urls
+    * item/create
+    * item/update
+
+###### Change:
+* Templates 
+    * todolist_app/todolist_edit.html
+        * Add 2 column in class="container-fluid" (for add item and read item)
+        * Add script to handle async checkbox for "completed" item
+
+---
 #### v 0.0.3 -- 2024/01/20
 ###### New:
 * Make django app (todolist_app)

@@ -22,14 +22,100 @@ Update To DO
     </div><!-- /.container-fluid -->
 </div>
 
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-6">
+            <h2>Left Column</h2>
+            <p>This is the content of the left column.</p>
+            <form id="createItemForm" method="post" action="{% url 'item_create' %}">
+                {% csrf_token %}
+                <input type="hidden" name="todo_id" value="{{ todo.id }}">
+                <input type="text" name="text" placeholder="New Item" required>
+                <button type="submit">Add Item</button>
+            </form>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-6">
+            <h2>Right Column</h2>
+            <p>This is the content of the right column.</p>
+            <form method="post" id="updateForm">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        {% for item in items %}
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                            {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
+                            <p>{{ item.text }}</p>
+                            <!--input type="text" class="form-control" value="{{ item.text }}" aria-label="Text input with checkbox"-->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div><!-- /.row -->
+</div>
 
 <script>
     document.getElementById('editButton').addEventListener('click', function () {
         document.getElementById('editInput').readOnly = false;
         document.getElementById('editInput').focus();
+
         document.getElementById('editButton').style.display = 'none';
         document.getElementById('saveButton').style.display = 'inline-block';
     });
 </script>
+
+
+<script>
+    // This code to handle checkedbox, to async with page
+
+    $(document).ready(function () {
+        // Function to get the CSRF token from the cookie
+        function getCSRFToken() {
+            var csrfToken = null;
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+                    break;
+                }
+            } 
+            return csrfToken;
+        }
+
+        $('.item-checkbox').on('change', function () {
+            var itemId = $(this).data('item-id');
+            var isChecked = $(this).prop('checked');
+
+            // Get the CSRF token
+            var csrfToken = getCSRFToken();
+
+            // Make an asynchronous request to update the item's completion status
+            $.ajax({
+                url: '{% url "item_update" %}',  // Replace with your URL for updating item status
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Include the CSRF token in the headers
+                },
+                data: {
+                    'item_id': itemId,
+                    'is_checked': isChecked
+                },
+                success: function (data) {
+                    // Handle success if needed
+                },
+                error: function (error) {
+                    // Handle error if needed
+                }
+            });
+        });
+    });
+</script>
+
 
 {% endblock %}
