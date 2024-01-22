@@ -41,16 +41,30 @@ Update To DO
             <h2>Right Column</h2>
             <p>This is the content of the right column.</p>
             <form method="post" id="updateForm">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
+                <div class="input-grid">
+                    <div class="all-items">
+                    <div class="incomplete-items">
                         {% for item in items %}
-                        <div class="input-group-text">
-                            <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
-                            {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
-                            <p>{{ item.text }}</p>
-                            <!--input type="text" class="form-control" value="{{ item.text }}" aria-label="Text input with checkbox"-->
-                        </div>
+                            {% if not item.complete %}
+                                <div class="input-group-text">
+                                    <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                                        {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
+                                    <p class="{% if item.complete %}completed-item{% endif %}">{{ item.text }}</p>
+                                </div>
+                            {% endif %}
                         {% endfor %}
+                    </div>
+                    <div class="complete-items">
+                        {% for item in items %}
+                            {% if item.complete %}
+                                <div class="input-group-text">
+                                    <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                                        {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
+                                    <p class="{% if item.complete %}completed-item{% endif %}">{{ item.text }}</p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                     </div>
                 </div>
             </form>
@@ -72,6 +86,7 @@ Update To DO
 
 <script>
     // This code to handle checkedbox, to async with page
+    // Async with API, so didnt need to reload the page
 
     $(document).ready(function () {
         // Function to get the CSRF token from the cookie
@@ -117,5 +132,57 @@ Update To DO
     });
 </script>
 
+<script>
+    // This code to handle line-through
+    // So everytime item checked, it mean complete, and it will have line through the item
+
+    // Attach the toggleCompleted class function to the change event of checkboxes
+    var checkboxes = document.querySelectorAll('.item-checkbox');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var itemText = checkbox.parentNode.querySelector('p');
+            itemText.classList.toggle('completed-item', checkbox.checked);
+        });
+    });
+</script>
+
+<script>
+    // This code to handle reodering
+    // So everytime item checked, it mean complete, and it will on the bottom of the list
+
+    function reorderItems() {
+        var incompleteItemsContainer = document.querySelector('.incomplete-items');
+        var completeItemsContainer = document.querySelector('.complete-items');
+        var checkboxes = document.querySelectorAll('.item-checkbox');
+
+        checkboxes.forEach(function(checkbox) {
+            var itemText = checkbox.parentNode.querySelector('p');
+            var parentContainer = checkbox.checked ? completeItemsContainer : incompleteItemsContainer;
+            parentContainer.appendChild(checkbox.parentNode);
+        });
+    }
+
+    var checkboxes = document.querySelectorAll('.item-checkbox');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', reorderItems);
+    });
+</script>
+
+<style>
+    .input-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Two columns for incomplete and complete items */
+    }
+
+    .incomplete-items,
+    .complete-items {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .completed-item {
+        text-decoration: line-through;
+    }
+</style>
 
 {% endblock %}

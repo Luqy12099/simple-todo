@@ -2,6 +2,18 @@
 <b>Full Changelog</b>
 
 ---
+#### v 0.0.5 -- 2024/01/22
+###### New:
+
+###### Change:
+* Templates 
+    * todolist_app/todolist_edit.html
+        * Add script to handle line through, so everytime item checked, it will have line through
+        * Add script to handle reordering, so everytime item checked, it will be on the bottom of the list
+        * Add style
+        * Change form(id="updateForm") to have 2 iterate for (one for complete)
+
+---
 #### v 0.0.4 -- 2024/01/21
 ###### New:
 * API (views)

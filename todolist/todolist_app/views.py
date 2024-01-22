@@ -57,10 +57,7 @@ def todolist_update(response, todo_id):
 #region ================================= ITEM AREA ==========================================================================
 @login_required()
 def item_create(response):
-    print('abcd')
-    print(response.session.get('todo_id'))
     todo_id = new_item_text = response.POST.get('todo_id')
-    print(todo_id)
     todo = get_object_or_404(ToDoList, id=todo_id)
 
     if response.user == todo.user and response.method == 'POST':
