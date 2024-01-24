@@ -43,7 +43,7 @@ def todolist_update(response, todo_id):
     # Check if the user has permission to delete this ToDoList item
     if response.user == todo.user:
         if response.method == 'POST':
-            new_name = response.POST.get('name')
+            new_name = response.POST.get('todo_name')
             todo.name = new_name
             todo.save()
             return render(response, "todolist_app/todolist_edit.html", {"todo":todo, "items":items})
@@ -72,10 +72,18 @@ def item_create(response):
 def item_update(response):
     if response.method == 'POST':
         item_id = response.POST.get('item_id')
-        is_checked = (response.POST.get('is_checked') == 'true')
+        is_checked = response.POST.get('is_checked')
+        new_text = response.POST.get('item_text')
 
         item = get_object_or_404(Item, id=item_id)
-        item.complete = is_checked
+        
+        if new_text != None:
+            item.text = new_text
+
+        if is_checked != None:
+            is_checked = (response.POST.get('is_checked') == 'true')
+            item.complete = is_checked
+
         item.save()
 
         return JsonResponse({'success': True})

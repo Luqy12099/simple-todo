@@ -2,6 +2,21 @@
 <b>Full Changelog</b>
 
 ---
+#### v 0.0.6 -- 2024/01/24
+###### Change:
+* API (views)
+    * todolist_app/item_update
+        * Add new parameter ('item.text')
+        * Change parameter ('is_checked')
+
+* Templates
+    * todolist_app/todolist_edit.html
+        * Add script to handle editebale item text
+        * Change form(id="updateForm with div class="{% if item.complete %}completed-item{% endif %}"), so item is editable
+        * Change script to handle editebale todo name
+        * Delete form and add div class="todo-name" in header 
+
+---
 #### v 0.0.5 -- 2024/01/22
 ###### New:
 

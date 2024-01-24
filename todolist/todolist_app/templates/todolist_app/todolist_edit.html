@@ -10,13 +10,8 @@ Update To DO
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
-            <div class="col-sm-8">
-                <form id="editForm" method="post" action="{% url 'todolist_update' todo_id=todo.id %}">
-                    {% csrf_token %}
-                    <input type="text" name="name" id="editInput" value="{{ todo.name }}" readonly>
-                    <button type="button" id="editButton">Edit</button>
-                    <button type="submit" id="saveButton" style="display: none;">Save</button>
-                </form>
+            <div class="col-sm-2">
+                <div class="todo-name" type="text" contenteditable="true" data-todo-id="{{ todo.id }}">{{ todo.name }}</div>
             </div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -43,28 +38,37 @@ Update To DO
             <form method="post" id="updateForm">
                 <div class="input-grid">
                     <div class="all-items">
-                    <div class="incomplete-items">
-                        {% for item in items %}
-                            {% if not item.complete %}
-                                <div class="input-group-text">
-                                    <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
-                                        {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
-                                    <p class="{% if item.complete %}completed-item{% endif %}">{{ item.text }}</p>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    <div class="complete-items">
-                        {% for item in items %}
-                            {% if item.complete %}
-                                <div class="input-group-text">
-                                    <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
-                                        {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
-                                    <p class="{% if item.complete %}completed-item{% endif %}">{{ item.text }}</p>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+                        <div class="incomplete-items">
+                            {% for item in items %}
+                                {% if not item.complete %}
+                                    <div class="input-group-text ">
+                                        <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                                            {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
+                                        <div class="{% if item.complete %}completed-item{% endif %}">
+                                            <div class="text-item" type="text" 
+                                            contenteditable="true" data-item-id="{{ item.id }}">{{ item.text }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="complete-items">
+                            {% for item in items %}
+                                {% if item.complete %}
+                                    <div class="input-group-text">
+                                        <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                                            {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
+
+                                        <div class="{% if item.complete %}completed-item{% endif %}">
+                                            <div class="text-item" type="text" 
+                                            contenteditable="true" data-item-id="{{ item.id }}">{{ item.text }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </form>
@@ -74,15 +78,47 @@ Update To DO
 </div>
 
 <script>
-    document.getElementById('editButton').addEventListener('click', function () {
-        document.getElementById('editInput').readOnly = false;
-        document.getElementById('editInput').focus();
+    $(document).ready(function () {
+        function getCSRFToken() {
+            var csrfToken = null;
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+                    break;
+                }
+            } 
+            return csrfToken;
+        } 
 
-        document.getElementById('editButton').style.display = 'none';
-        document.getElementById('saveButton').style.display = 'inline-block';
+        $('.todo-name').on('input', function () {
+            var todo_id = $(this).data('todo-id');
+            var todo_name = $(this).text();
+
+            // Get the CSRF token
+            var csrfToken = getCSRFToken();
+
+            // Make an asynchronous request to update the item's completion status
+            $.ajax({
+                url: '{% url "todolist_update" todo_id=todo.id %}',  // Replace with your URL for updating item status
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Include the CSRF token in the headers
+                },
+                data: {
+                    'todo_name': todo_name
+                },
+                success: function (data) {
+                    // Handle success if needed
+                },
+                error: function (error) {
+                    // Handle error if needed
+                }
+            });
+        });
     });
 </script>
-
 
 <script>
     // This code to handle checkedbox, to async with page
@@ -133,6 +169,53 @@ Update To DO
 </script>
 
 <script>
+    // This code to handle change item text, to async with page
+    // Async with API, so didnt need to reload the page
+    $(document).ready(function () {
+        function getCSRFToken() {
+            var csrfToken = null;
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+                    break;
+                }
+            } 
+            return csrfToken;
+        } 
+
+        $('.text-item').on('input', function () {
+            var itemId = $(this).data('item-id');
+            var item_text = $(this).text();
+
+            // Get the CSRF token
+            var csrfToken = getCSRFToken();
+
+            // Make an asynchronous request to update the item's completion status
+            $.ajax({
+                url: '{% url "item_update" %}',  // Replace with your URL for updating item status
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Include the CSRF token in the headers
+                },
+                data: {
+                    'item_id': itemId,
+                    'item_text':item_text
+                },
+                success: function (data) {
+                    // Handle success if needed
+                },
+                error: function (error) {
+                    // Handle error if needed
+                }
+            });
+        });
+    });
+</script>
+
+
+<script>
     // This code to handle line-through
     // So everytime item checked, it mean complete, and it will have line through the item
 
@@ -140,7 +223,7 @@ Update To DO
     var checkboxes = document.querySelectorAll('.item-checkbox');
     checkboxes.forEach(function(checkbox) {
         checkbox.addEventListener('change', function() {
-            var itemText = checkbox.parentNode.querySelector('p');
+            var itemText = checkbox.parentNode.querySelector('div');
             itemText.classList.toggle('completed-item', checkbox.checked);
         });
     });
