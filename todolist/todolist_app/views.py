@@ -2,7 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .form import form_create
 from .models import ToDoList, Item
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
+from django.db import transaction
 
 #region ================================= TODOLIST AREA ==========================================================================
 
@@ -44,8 +45,9 @@ def todolist_update(response, todo_id):
     if response.user == todo.user:
         if response.method == 'POST':
             new_name = response.POST.get('todo_name')
-            todo.name = new_name
-            todo.save()
+            if new_name != None: 
+                todo.name = new_name
+                todo.save()
             return render(response, "todolist_app/todolist_edit.html", {"todo":todo, "items":items})
         else:
             return render(response, "todolist_app/todolist_edit.html", {"todo":todo, "items":items})
@@ -57,7 +59,7 @@ def todolist_update(response, todo_id):
 #region ================================= ITEM AREA ==========================================================================
 @login_required()
 def item_create(response):
-    todo_id = new_item_text = response.POST.get('todo_id')
+    todo_id  = response.POST.get('todo_id')
     todo = get_object_or_404(ToDoList, id=todo_id)
 
     if response.user == todo.user and response.method == 'POST':
@@ -89,5 +91,20 @@ def item_update(response):
         return JsonResponse({'success': True})
 
     return JsonResponse({'success': False})
+
+@login_required()
+def item_delete(response, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    if item.todolist and response.user == item.todolist.user:
+        try:
+            with transaction.atomic():
+                todo_id = item.todolist.id
+                item.delete()
+                return redirect('todolist_update', todo_id=todo_id)
+        except Exception as e:
+            print(f"Error deleting item: {e}")
+    else:
+        return HttpResponseForbidden("You don't have permission to delete this item.")
+
 
 #endregion ================================= ITEM AREA ==========================================================================

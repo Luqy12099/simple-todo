@@ -11,7 +11,10 @@ Update To DO
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-2">
-                <div class="todo-name" type="text" contenteditable="true" data-todo-id="{{ todo.id }}">{{ todo.name }}</div>
+                <form>
+                    <div class="todo-name" type="text" contenteditable="true" data-todo-id="{{ todo.id }}">{{ todo.name }}</div>
+                </form>
+                
             </div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -35,37 +38,56 @@ Update To DO
         <div class="col-md-6">
             <h2>Right Column</h2>
             <p>This is the content of the right column.</p>
+            
             <form method="post" id="updateForm">
                 <div class="input-grid">
                     <div class="all-items">
                         <div class="incomplete-items">
                             {% for item in items %}
                                 {% if not item.complete %}
-                                    <div class="input-group-text ">
-                                        <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
-                                            {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
-                                        <div class="{% if item.complete %}completed-item{% endif %}">
-                                            <div class="text-item" type="text" 
-                                            contenteditable="true" data-item-id="{{ item.id }}">{{ item.text }}
+                                <form></form>
+                                    <form method="post" action="{% url 'item_delete' item_id=item.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <div class="input-group-text">
+                                            <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                                                {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
+                                            <div class="{% if item.complete %}completed-item{% endif %}">
+                                                <div class="text-item" type="text" contenteditable="true" data-item-id="{{ item.id }}">
+                                                    {{ item.text }}
+                                                </div>
                                             </div>
+                                            <input type="hidden" name="is_delete" value="True">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                                <i class="nav-icon fas fa-trash"></i> Delete
+                                            </button>
                                         </div>
-                                    </div>
+                                    </form>
                                 {% endif %}
                             {% endfor %}
                         </div>
+
+                        
                         <div class="complete-items">
                             {% for item in items %}
                                 {% if item.complete %}
-                                    <div class="input-group-text">
-                                        <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
-                                            {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
-
-                                        <div class="{% if item.complete %}completed-item{% endif %}">
-                                            <div class="text-item" type="text" 
-                                            contenteditable="true" data-item-id="{{ item.id }}">{{ item.text }}
+                                    <form method="post" action="{% url 'item_delete' item_id=item.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <div class="input-group-text">
+                                            <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                                                {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}">
+                                            <div class="{% if item.complete %}completed-item{% endif %}">
+                                                <div class="text-item" type="text" contenteditable="true" data-item-id="{{ item.id }}">
+                                                    {{ item.text }}
+                                                </div>
                                             </div>
+                                            <input type="hidden" name="is_delete" value="True">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                                <i class="nav-icon fas fa-trash"></i> Delete
+                                            </button>
                                         </div>
-                                    </div>
+                                    </form>
+
+                
                                 {% endif %}
                             {% endfor %}
                         </div>

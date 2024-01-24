@@ -2,6 +2,26 @@
 <b>Full Changelog</b>
 
 ---
+#### v 0.0.7-- 2024/01/24
+###### New:
+* API (views)
+    * todolist_app/item_delete
+
+* urls
+    * item/delete/<int:item_id>/
+
+###### Change:
+* API (views)
+    * todolist_app/todolist_update
+        * Add new logic if new_name != None: 
+
+* Templates
+    * todolist_app/todolist_edit.html
+        * Add button in each item
+        * Add <form></form> before first iterate
+        
+
+---
 #### v 0.0.6 -- 2024/01/24
 ###### Change:
 * API (views)
