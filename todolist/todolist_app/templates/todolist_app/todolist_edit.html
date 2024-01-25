@@ -1,0 +1,265 @@
+{% extends 'register/base.html'%}
+
+{% block tittle %}
+Update To DO
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-13">
+            <h1>
+                <form>
+                    <div class="header">
+                        <div class="todo-name" type="text" contenteditable="true" 
+                            data-todo-id="{{ todo.id }}">{{ todo.name }}
+                        </div>
+                    </div>
+                </form>
+            </h1>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-6">
+            <h2>Add Item</h2>
+            <form id="createItemForm" method="post" action="{% url 'item_create' %}">
+                {% csrf_token %}
+                <input type="hidden" name="todo_id" value="{{ todo.id }}">
+                <input type="text" name="text" placeholder="New Item" required>
+                <button type="submit" class="btn btn-success">Add Item</button>
+            </form>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-6">
+            <h2>Item</h2>
+            <form method="post" id="updateForm">
+                <div class="input-grid">
+                    <div class="all-items">
+                        <div class="incomplete-items">
+                            {% for item in items %}
+                                {% if not item.complete %}
+                                <form></form>
+                                {% csrf_token %}
+                                    <div class="input-group-text" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <form method="post" action="{% url 'item_update' %}" style="flex-grow: 1; display: flex; align-items: center;">
+                                            {% csrf_token %}
+                                            <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                                                {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}" 
+                                                onclick="this.form.submit()">
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <input type="hidden" name="is_checked" value="{{ item.complete }}">
+                                            <div class="{% if item.complete %}completed-item{% endif %}">
+                                                <div class="text-item" type="text" contenteditable="true" data-item-id="{{ item.id }}">
+                                                    {{ item.text }}
+                                                </div>
+                                            </div>
+                                        </form>
+                                    
+                                        <form method="post" action="{% url 'item_delete' item_id=item.id %}" style="display: inline; margin-left: 10px;">
+                                            {% csrf_token %}
+                                            <div>
+                                                <input type="hidden" name="is_delete" value="True">
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                                    <i class="nav-icon fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                
+                                    
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        
+                        <div class="complete-items">
+                            {% for item in items %}
+                                {% if item.complete %}
+                                    <form></form>
+                                    {% csrf_token %}
+                                    <div class="input-group-text" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <form method="post" action="{% url 'item_update' %}" style="flex-grow: 1; display: flex; align-items: center;">
+                                            {% csrf_token %}
+                                            <input class="form-check-input mt-0 item-checkbox" type="checkbox" value="clicked" aria-label="Checkbox for item" 
+                                                {% if item.complete %}checked{% endif %} data-item-id="{{ item.id }}" 
+                                                onclick="this.form.submit()">
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <input type="hidden" name="is_checked" value="{{ item.complete }}">
+                                            <div class="{% if item.complete %}completed-item{% endif %}">
+                                                <div class="text-item" type="text" contenteditable="true" data-item-id="{{ item.id }}">
+                                                    {{ item.text }}
+                                                </div>
+                                            </div>
+                                        </form>
+                                    
+                                        <form method="post" action="{% url 'item_delete' item_id=item.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <div>
+                                                <input type="hidden" name="is_delete" value="True">
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                                    <i class="nav-icon fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div><!-- /.row -->
+</div>
+
+<script>
+    $(document).ready(function () {
+        function getCSRFToken() {
+            var csrfToken = null;
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+                    break;
+                }
+            } 
+            return csrfToken;
+        } 
+
+        $('.todo-name').on('input', function () {
+            var todo_id = $(this).data('todo-id');
+            var todo_name = $(this).text();
+
+            // Get the CSRF token
+            var csrfToken = getCSRFToken();
+
+            // Make an asynchronous request to update the item's completion status
+            $.ajax({
+                url: '{% url "todolist_update" todo_id=todo.id %}',  // Replace with your URL for updating item status
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Include the CSRF token in the headers
+                },
+                data: {
+                    'todo_name': todo_name
+                },
+                success: function (data) {
+                    // Handle success if needed
+                },
+                error: function (error) {
+                    // Handle error if needed
+                }
+            });
+        });
+    });
+</script>
+
+
+<script>
+    // This code to handle change item text, to async with page
+    // Async with API, so didnt need to reload the page
+    $(document).ready(function () {
+        function getCSRFToken() {
+            var csrfToken = null;
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+                    break;
+                }
+            } 
+            return csrfToken;
+        } 
+
+        $('.text-item').on('input', function () {
+            var itemId = $(this).data('item-id');
+            var item_text = $(this).text();
+
+            // Get the CSRF token
+            var csrfToken = getCSRFToken();
+
+            // Make an asynchronous request to update the item's completion status
+            $.ajax({
+                url: '{% url "item_update" %}',  // Replace with your URL for updating item status
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Include the CSRF token in the headers
+                },
+                data: {
+                    'item_id': itemId,
+                    'item_text':item_text
+                },
+                success: function (data) {
+                    // Handle success if needed
+                },
+                error: function (error) {
+                    // Handle error if needed
+                }
+            });
+        });
+    });
+</script>
+
+
+<script>
+    // This code to handle line-through
+    // So everytime item checked, it mean complete, and it will have line through the item
+
+    // Attach the toggleCompleted class function to the change event of checkboxes
+    var checkboxes = document.querySelectorAll('.item-checkbox');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var itemText = checkbox.parentNode.querySelector('div');
+            itemText.classList.toggle('completed-item', checkbox.checked);
+        });
+    });
+</script>
+
+
+
+<style>
+    .input-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Two columns for incomplete and complete items */
+    }
+
+    .incomplete-items,
+    .complete-items {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .completed-item {
+        text-decoration: line-through;
+    }
+
+    .todo-name {
+            outline: none;
+            border: none;
+            background-color: rgba(255, 0, 0, 0.2);
+        }
+
+    .todo-name:focus {
+        outline: none;
+        border: none;
+        background-color: rgba(255, 0, 0, 0.5);
+    }
+
+    .todo-name:blur {
+        background-color: rgba(255, 0, 0, 0.2);
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'register/base.html'%}
+
+{% block tittle %}
+Add ToDo
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" name="add_todolist" value="add_todolist" class="btn btn-success">Add ToDo</button>
+</form>
+{% endblock %}
