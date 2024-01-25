@@ -28,8 +28,6 @@ def todolist_read(response):
 @login_required()
 def todolist_delete(response, todo_id):
     todo = get_object_or_404(ToDoList, id=todo_id)
-    print('abc')
-
     # Check if the user has permission to delete this ToDoList item
     if response.user == todo.user or todo == None:
         todo.delete()
@@ -78,19 +76,20 @@ def item_update(response):
         new_text = response.POST.get('item_text')
 
         item = get_object_or_404(Item, id=item_id)
+        todo_id = item.todolist.id
         
         if new_text != None:
             item.text = new_text
 
         if is_checked != None:
-            is_checked = (response.POST.get('is_checked') == 'true')
+            is_checked = (response.POST.get('is_checked') != 'True')
             item.complete = is_checked
 
         item.save()
 
-        return JsonResponse({'success': True})
+        return redirect('todolist_update', todo_id=todo_id)
 
-    return JsonResponse({'success': False})
+    
 
 @login_required()
 def item_delete(response, item_id):

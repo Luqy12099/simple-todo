@@ -2,6 +2,25 @@
 <b>Full Changelog</b>
 
 ---
+#### v 0.0.8-- 2024/01/25
+
+###### Change:
+* API (views)
+    * todolist_app/todolist_update
+        * Change argument to response.POST.get('is_checked') != 'True'
+        * Add return value
+
+* Templates 
+    * todolist_app/todolist_edit.html
+        * Add in style header
+        * Change style button add item
+
+        * Change checked item to synchronous
+        * Delete script tag that related to checked and reodering
+        * Change form (item_delete), to its button (before in input group)
+        * Change style in input group item (make button is aligned with below button)
+
+---
 #### v 0.0.7-- 2024/01/24
 ###### New:
 * API (views)
